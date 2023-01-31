@@ -10,7 +10,7 @@ else ifeq ($(OS), Darwin)
 endif
 
 DOCKER_VOLUMES = \
-	--volume="${PWD}/uvs_bridge":"/root/catkin_ws/src/uvs_bridge"
+	--volume="$(shell pwd)/uvs_bridge":"/root/catkin_ws/src/uvs_bridge"
 DOCKER_ENV_VARS = \
 	--env="DISPLAY" \
 	--env="QT_X11_NO_MITSHM=1"
@@ -23,4 +23,4 @@ build:
 
 .PHONY: term
 term:
-	@docker run -it --net=host --privileged ${DOCKER_ARGS} uvs bin/bash
+	docker run -it --net=host --user 1001 --privileged ${DOCKER_ARGS} uvs bin/bash

@@ -1,4 +1,4 @@
-FROM ros_noetic:latest
+FROM dylanjmiller/ros_noetic:latest
 
 SHELL ["/bin/bash", "-c"]
 
@@ -29,6 +29,7 @@ RUN mkdir -p /root/catkin_ws/src
 COPY uvs_bridge  /root/catkin_ws/src/uvs_bridge
 COPY wam_common  /root/catkin_ws/src/wam_common
 
-RUN /bin/bash -c '. /opt/ros/${ROS_DISTRO}/setup.bash && cd /root/catkin_ws && catkin_make && source devel/setup.bash'
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash && cd /root/catkin_ws && catkin_make && source devel/setup.bash
+
 
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
