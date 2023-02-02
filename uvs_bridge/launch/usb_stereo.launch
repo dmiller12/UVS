@@ -1,15 +1,16 @@
 
 <launch>
-    <node pkg="usb_cam" type="usb_cam_node" name="cam1" output="screen" respawn="true" >
+    <node pkg="usb_cam" type="usb_cam_node" name="cam1" output="log" respawn="true" >
         <param name="video_device" value="/dev/video2" />
         <param name="framerate" value="15" />
         <param name="autofocus" value="true" />
         <param name="pixel_format" value="yuyv" />
     </node>
-    <node pkg="usb_cam" type="usb_cam_node" name="cam2" output="screen" respawn="true" >
+    <node pkg="usb_cam" type="usb_cam_node" name="cam2" output="log" respawn="true" >
         <param name="video_device" value="/dev/video4" />
         <param name="framerate" value="15" />
         <param name="autofocus" value="true" />
         <param name="pixel_format" value="yuyv" />
     </node>
+    <node pkg="uvs_bridge" type="user_interface" name="user_interface" output="screen"></node>
 </launch>

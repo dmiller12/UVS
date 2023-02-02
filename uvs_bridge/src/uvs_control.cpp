@@ -1,5 +1,5 @@
 /*
- * lpetrich 27/06/18
+ * Adapted from lpetrich 27/06/18
  */
 #include <fstream>
 #include "uvs_bridge/uvs_control.h"
@@ -9,7 +9,7 @@ Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 
 UVSControl::UVSControl(ros::NodeHandle nh_)
 {
-	dof = 7;
+	dof = 4;
 	total_joints = 0;
 	image_tol = 100.0;
 	default_lambda = 0.15;
@@ -142,15 +142,6 @@ bool UVSControl::broyden_update(double alpha)
 	std::cout << "update: \n" << update.format(CleanFmt) << std::endl;
 	std::cout << "jacobian: \n" << jacobian.format(CleanFmt) << std::endl;
 	std::cout << "jacobian_inverse: \n" << jacobian_inverse.format(CleanFmt) << std::endl;
-	// log(filename, "previous eef position: ", previous_eef_position, false);
-	// log(filename, "current eef position: ", current_eef_position, false);
-	// log(filename, "dq: ", dq, false);
-	// log(filename, "dq norm: ", dq_norm, false);
-	// log(filename, "dy: ", dy, false);
-	// log(filename, "dy norm: ", dy.norm(), false);
-	// log(filename, "broyden update: ", update, false);
-	// log(filename, "new jacobian: ", jacobian, false);
-	// log(filename, "inverse jacobian: ", jacobian_inverse, false);
 	return true;
 }
 
@@ -268,8 +259,6 @@ bool UVSControl::jacobian_estimate(double perturbation_delta)
 	std::cout << "initial jacobian: \n" << initial_jacobian.format(CleanFmt) << std::endl;
 	std::cout << "inverse jacobian: \n" << jacobian_inverse.format(CleanFmt) << std::endl;
 
-	// log(filename, "initial jacobian: ", initial_jacobian, false);
-	// log(filename, "inverse jacobian: ", jacobian_inverse, false);
 	return true;
 }
 
