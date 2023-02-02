@@ -33,3 +33,4 @@ RUN source /opt/ros/${ROS_DISTRO}/setup.bash && cd /root/catkin_ws && catkin_mak
 
 
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+RUN echo "source /root/catkin_ws/devel/setup.bash" >> ~/.bashrc
