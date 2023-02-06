@@ -3,7 +3,7 @@ FROM dylanjmiller/ros_noetic:latest
 SHELL ["/bin/bash", "-c"]
 
 
-RUN apt-get update; apt-get install -y libopencv-dev python3-opencv
+RUN apt-get update; apt-get install -y libopencv-dev python3-opencv valgrind
 
 # other 3rd party dependencies
 RUN apt-get install -y libeigen3-dev

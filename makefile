@@ -22,4 +22,4 @@ build:
 
 .PHONY: term
 term:
-	docker run -it --net=host --privileged ${DOCKER_ARGS} uvs bin/bash
+	docker run -it --rm --net=host --privileged ${DOCKER_ARGS} uvs bin/bash
