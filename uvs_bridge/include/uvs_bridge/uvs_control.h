@@ -11,7 +11,7 @@
 #include <fstream>
 #include <algorithm>
 #include <eigen3/Eigen/Dense>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include "std_msgs/Bool.h"
 #include "sensor_msgs/JointState.h"
 #include "sensor_msgs/Joy.h"
@@ -51,7 +51,7 @@ class UVSControl
 	Eigen::MatrixXd initial_jacobian;
 	Eigen::MatrixXd jacobian;
 	Eigen::MatrixXd jacobian_inverse;
-	std::vector<int> active_joints = {1, 1, 1, 1, 1, 1, 1};
+	std::vector<int> active_joints = {1, 1, 1, 1, 0, 0, 0}; // Only first 4 joints
 	UVSControl(ros::NodeHandle nh);
 	~UVSControl();
 	Eigen::VectorXd calculate_delta_q();

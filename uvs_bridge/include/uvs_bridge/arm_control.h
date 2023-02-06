@@ -69,7 +69,6 @@ class ArmControl {
         bool call_move_cartesian(const Eigen::VectorXd& target_position);
         bool call_move_cartesian_velocity(const Eigen::VectorXd& target);
         bool call_move_force_torque(const Eigen::VectorXd& force, const Eigen::VectorXd& torque, bool base);
-        bool call_move_force_torque_base_time(const Eigen::VectorXd& force_torque, bool base, double sleeptime);
         bool move_one_joint();
         bool move_one_joint_by_delta();
         bool move_all_joints();
@@ -85,8 +84,6 @@ class ArmControl {
         bool move_force_torque_tool();
         bool teach_motion(std::string path_name);
         bool follow_motion(std::string path_name);
-        bool follow_waypoints(std::string path_name);
-        bool follow_trajectory();
         bool follow_path();
         bool link_arms();
         bool unlink_arms();

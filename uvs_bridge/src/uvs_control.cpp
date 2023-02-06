@@ -166,8 +166,6 @@ int UVSControl::move_step(bool continous_motion)
 	if (!limit_check(target_position, total_joints)) {
 		return 1;
 	}
-	// calculate move run time
-	// current_velocity = arm->get_velocities();
 	// write to screen for debugging
 	std::cout << "current_error: \n" << current_error.format(CleanFmt) << std::endl;
 	std::cout << "previous_joint_positions: \n" << previous_joint_positions.format(CleanFmt) << std::endl;
@@ -175,20 +173,11 @@ int UVSControl::move_step(bool continous_motion)
 	std::cout << "previous_eef_position: \n" << previous_eef_position.format(CleanFmt) << std::endl;
 	std::cout << "step_delta: \n" << step_delta.format(CleanFmt) << std::endl;
 	std::cout << "target_position: \n" << target_position.format(CleanFmt) << std::endl;
-	// std::cout << "Predicted ramp-down time: " << predicted_times[1] << std::endl;
-	// std::cout << "Predicted end time: " << predicted_times[2] << std::endl;
-	// save previous state before move
+
 	previous_joint_positions = current_joint_positions;
 	previous_eef_position = get_eef_position();
 	arm->call_move_joints(target_position, false);
-	// check for continuous motion and adjust sleep times accordingly
-	// if (continous_motion) {
-	// 	// sleep_time = std::max(0.2, predicted_times[1] - 0.05);
-	// 	// sleep_time = std::max(0.3, predicted_times[1] - 0.01);
-	// 	sleep_time = std::min(1.0, std::max(0.3, (predicted_times[1] + predicted_times[2]) * 0.5)); // range between [0.3, 1.0]
-	// } else {
-	// 	sleep_time = 1.0;
-	// }
+
 	std::cout << "// sleep time: " << sleep_time << std::endl;
 	ros::Duration(sleep_time).sleep();
 	return 2;
@@ -277,23 +266,12 @@ void UVSControl::loop()
 	std::string s;
 	lambda = default_lambda; // convergence rate
 	while (ros::ok() && !exit_loop) {
-		// if (move_now && ready() && jacobian_initialized)
-		// {
-		// 	converge(alpha, 100, continous_motion);
-		// 	lambda = default_lambda;
-		// 	move_now = false;
-		// }
 		std::cout << "************************************************************************************************"
 				  << "\nSelect option:"
 				  << "\n\tp: Lock joint position"
 				  << "\n\tu: Unlock joint position"
-				  // << "\n\td: Set Jacobian delta movement (current = " << perturbation_delta << ")"
-				  // << "\n\tl: Set step convergence lambda value (current = " << lambda << ")"
-				  // << "\n\ta: Set alpha value for broyden update (current = " << alpha << ")"
-				  // << "\n\tt: Set image_tol - prevents collision in image space (current = " << image_tol << ")"
-				  // << "\n\tc: Set max iteration for convergence (current = " << max_iterations << ")"
+				  << "\n\tm: Move one joint"
 				  << "\n\tj: Compute Jacobian"
-				  // << "\n\tx: Compute Jacobian with chosen joints"
 				  << "\n\tv: Complete VS convergence with set max iterations"
 				  << "\n\ts: Compute and move one step"\
 				  << "\n\ti: Move to initial position"
@@ -309,6 +287,9 @@ void UVSControl::loop()
 		case 'u':
 			arm->lock_joint_position(false);
 			break;
+		case 'm':
+			arm->move_one_joint();
+			break;
 		case 'j':
 			if (ready()) {
 				for (int i = 0; i < dof; ++i) {
@@ -317,35 +298,9 @@ void UVSControl::loop()
 				jacobian_initialized = jacobian_estimate(perturbation_delta);
 			}
 			break;
-		// case 'x':
-		// 	if (ready())
-		// 	{
-		// 		set_active_joints();
-		// 		jacobian_initialized = jacobian_estimate(perturbation_delta);
-		// 	}
-		// 	break;
 		case 'i':
-			// arm->stop_visual_fix();
 			arm->move_to_initial_position();
-			// grip_closed = false;
-			// is_spread = false;
 			break;
-		// case 'd':
-		// 	perturbation_delta = degreesToRadians(double_input(1, 20));
-		// 	break;
-		// case 'l':
-		// 	lambda = double_input(0, 1);
-		// 	break;
-		// case 'a':
-		// 	alpha = double_input(0, 1);
-		// 	break;
-		// case 'c':
-		// 	max_iterations = double_input(0, 500);
-		// 	break;
-		// case 't':
-		// 	image_tol = double_input(0, 500);
-		// 	lambda = default_lambda;
-		// 	break;
 		case 'v':
 			if (ready() && jacobian_initialized) {
 				converge(alpha, max_iterations - 1, continous_motion);
@@ -363,7 +318,6 @@ void UVSControl::loop()
 			}
 			break;
 		case 'h':
-			// arm->stop_visual_fix();
 			arm->move_to_home_position();
 			break;
 		case 'q':
@@ -373,23 +327,6 @@ void UVSControl::loop()
 			ROS_WARN_STREAM("Unknown option");
 		}
 	}
-	// ros::Rate r(60); 
-	// while (ros::ok()) {
-	// 	Eigen::VectorXd e;
-	// 	e = get_error();
-	// 	std::cout << "Error: ";
-	// 	for (int i = 0; i < e.size(); ++i) {
-	// 		std::cout << e[i] << " ";
-	// 	}
-	// 	e = get_eef_position();
-	// 	std::cout << "End Effector: ";
-	// 	for (int i = 0; i < e.size(); ++i) {
-	// 		std::cout << e[i] << " ";
-	// 	}
-	// 	std::cout << std::endl;
-	// 	ros::spinOnce();
-	// 	r.sleep();
-	// }
 }
 
 

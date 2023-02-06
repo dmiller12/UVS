@@ -411,21 +411,6 @@ bool ArmControl::move_cartesian_velocity()
 	return call_move_cartesian_velocity(target);
 }
 
-bool ArmControl::call_move_force_torque_base_time(const Eigen::VectorXd& ft, bool base, double sleeptime) 
-{ // move arm with target force and torque with respect to either base or tool
-	wam_srvs::ForceTorqueToolTime req;
-	req.request.force.push_back(ft[0]);
-	req.request.force.push_back(ft[1]);
-	req.request.force.push_back(ft[2]);
-	req.request.torque.push_back(ft[3]);
-	req.request.torque.push_back(ft[4]);
-	req.request.torque.push_back(ft[5]);
-	req.request.time = sleeptime;
-
-	if (base) { return force_torque_base_time_srvs.call(req); }
-	// else { return force_torque_tool_srvs.call(req); }
-}
-
 bool ArmControl::call_move_force_torque(const Eigen::VectorXd& f, const Eigen::VectorXd& t, bool base) 
 { // move arm with target force and torque with respect to either base or tool
 	wam_srvs::ForceTorqueTool req;
@@ -463,32 +448,6 @@ bool ArmControl::teach_motion(std::string path_name)
 	wam_srvs::Teach req;
 	req.request.path = path_name;
 	return teach_motion_srvs.call(req);
-}
-
-bool ArmControl::follow_waypoints(std::string path_prefix) 
-{
-	Eigen::IOFormat VectorFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
-	std::vector<Eigen::VectorXd> v = read_waypoints_from_file(dof, path_prefix);
-	for(std::vector<Eigen::VectorXd>::size_type i = 0; i != v.size(); i++) {
-		std::cout << "\tMoving to: " << v[i].format(VectorFmt) << std::endl;
-		call_move_joints(v[i], true);
-	}
-
-	return true;
-}
-
-bool ArmControl::follow_trajectory() 
-{
-	Eigen::IOFormat VectorFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
-	std::vector<Eigen::VectorXd> v = read_joint_positions_from_file(dof);
-	// std::vector<Eigen::VectorXd> v = read_waypoints_from_file(dof, "/home/hulk/FORDM/trajectory_rendering/Trajectories/");
-	for(std::vector<Eigen::VectorXd>::size_type i = 0; i != v.size(); i++) {
-		std::cout << "\tMoving to: " << v[i].format(VectorFmt) << std::endl;
-		call_move_joints(v[i], false);
-		std::cout << "Press enter to send next waypoint" << std::endl;
-		wait_for_enter();
-	}
-	return true;
 }
 
 bool ArmControl::follow_motion(std::string path_name) 
