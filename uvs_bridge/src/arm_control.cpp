@@ -1,45 +1,43 @@
 #include "uvs_bridge/arm_control.h"
 
-ArmControl::ArmControl(ros::NodeHandle nh) {
+ArmControl::ArmControl(ros::NodeHandle nh, std::string wam_namespace, int dof) {
 	// initialize global variables
-	connected_to_zeus = false;
-	connected_to_slax = false;
-	dof = 0;
+	dof = dof;
 	std::string t = current_time();
-    wam_namespace = "";
+    wam_namespace = wam_namespace;
 	initialize_wam_connection();
 	ROS_INFO_STREAM("ArmControl: Connected to " << wam_namespace << " with " << dof << " DOF");
 	// Arm Services
 	gravity_comp_srvs = nh.serviceClient<wam_srvs::GravityComp>(wam_namespace + "/wam/gravity_comp");
-	haptic_sphere_srvs = nh.serviceClient<wam_srvs::HapticSphere>(wam_namespace + "/wam/haptic_sphere");
-	go_home_srvs = nh.serviceClient<std_srvs::Empty>(wam_namespace + "/wam/go_home");
-	hold_jnt_srvs = nh.serviceClient<wam_srvs::Hold>(wam_namespace + "/wam/hold_joint_pos");
-	hold_cart_pos_srvs = nh.serviceClient<wam_srvs::Hold>(wam_namespace + "/wam/hold_cart_pos");
-	hold_ortn_srvs = nh.serviceClient<wam_srvs::Hold>(wam_namespace + "/wam/hold_ortn");
-	hold_ortn2_srvs = nh.serviceClient<wam_srvs::Hold>(wam_namespace + "/wam/hold_ortn2");
-	joint_move_srvs = nh.serviceClient<wam_srvs::JointMove>(wam_namespace + "/wam/joint_move");
-	joint_move_block_srvs = nh.serviceClient<wam_srvs::JointMoveBlock>(wam_namespace + "/wam/joint_move_block");
-	pose_move_srvs = nh.serviceClient<wam_srvs::PoseMove>(wam_namespace + "/wam/pose_move");
-	cart_move_srvs = nh.serviceClient<wam_srvs::CartPosMove>(wam_namespace + "/wam/cart_move");
-	cart_vel_srvs = nh.serviceClient<wam_srvs::CartVel>(wam_namespace + "/wam/cart_vel");
-	ortn_move_srvs = nh.serviceClient<wam_srvs::OrtnMove>(wam_namespace + "/wam/ortn_move");
-	ortn_split_move_srvs = nh.serviceClient<wam_srvs::OrtnSplitMove>(wam_namespace + "/wam/ortn_split_move");
-	force_torque_base_srvs = nh.serviceClient<wam_srvs::ForceTorqueTool>(wam_namespace + "/wam/force_torque_base");
-	force_torque_tool_srvs = nh.serviceClient<wam_srvs::ForceTorqueTool>(wam_namespace + "/wam/force_torque_tool");
-	force_torque_base_time_srvs = nh.serviceClient<wam_srvs::ForceTorqueToolTime>(wam_namespace + "/wam/force_torque_base_time");
-	teach_motion_srvs = nh.serviceClient<wam_srvs::Teach>(wam_namespace + "/wam/teach_motion");
-	play_srvs = nh.serviceClient<wam_srvs::Play>(wam_namespace + "/wam/play_motion", true); // true to mark persistent connection -- meaning it may not always be valid
-	link_arm_srvs = nh.serviceClient<wam_srvs::Link>(wam_namespace + "/wam/link_arm");
-	unlink_arm_srvs = nh.serviceClient<std_srvs::Empty>(wam_namespace + "/wam/unlink_arm");
-	start_visual_fix_srvs = nh.serviceClient<std_srvs::Empty>(wam_namespace + "/wam/start_visual_fix");
-	stop_visual_fix_srvs = nh.serviceClient<std_srvs::Empty>(wam_namespace + "/wam/stop_visual_fix");
-	follow_path_srvs = nh.serviceClient<wam_srvs::FollowPath>(wam_namespace + "/wam/follow_path");
-	get_tool_pose_srvs = nh.serviceClient<wam_srvs::GetToolPose>(wam_namespace + "/wam/get_tool_pose");
+	haptic_sphere_srvs = nh.serviceClient<wam_srvs::HapticSphere>(wam_namespace + "/haptic_sphere");
+	go_home_srvs = nh.serviceClient<std_srvs::Empty>(wam_namespace + "/go_home");
+	hold_jnt_srvs = nh.serviceClient<wam_srvs::Hold>(wam_namespace + "/hold_joint_pos");
+	hold_cart_pos_srvs = nh.serviceClient<wam_srvs::Hold>(wam_namespace + "/hold_cart_pos");
+	hold_ortn_srvs = nh.serviceClient<wam_srvs::Hold>(wam_namespace + "/hold_ortn");
+	hold_ortn2_srvs = nh.serviceClient<wam_srvs::Hold>(wam_namespace + "/hold_ortn2");
+	joint_move_srvs = nh.serviceClient<wam_srvs::JointMove>(wam_namespace + "/joint_move");
+	joint_move_block_srvs = nh.serviceClient<wam_srvs::JointMoveBlock>(wam_namespace + "/joint_move_block");
+	pose_move_srvs = nh.serviceClient<wam_srvs::PoseMove>(wam_namespace + "/pose_move");
+	cart_move_srvs = nh.serviceClient<wam_srvs::CartPosMove>(wam_namespace + "/cart_move");
+	cart_vel_srvs = nh.serviceClient<wam_srvs::CartVel>(wam_namespace + "/cart_vel");
+	ortn_move_srvs = nh.serviceClient<wam_srvs::OrtnMove>(wam_namespace + "/ortn_move");
+	ortn_split_move_srvs = nh.serviceClient<wam_srvs::OrtnSplitMove>(wam_namespace + "/ortn_split_move");
+	force_torque_base_srvs = nh.serviceClient<wam_srvs::ForceTorqueTool>(wam_namespace + "/force_torque_base");
+	force_torque_tool_srvs = nh.serviceClient<wam_srvs::ForceTorqueTool>(wam_namespace + "/force_torque_tool");
+	force_torque_base_time_srvs = nh.serviceClient<wam_srvs::ForceTorqueToolTime>(wam_namespace + "/force_torque_base_time");
+	teach_motion_srvs = nh.serviceClient<wam_srvs::Teach>(wam_namespace + "/teach_motion");
+	play_srvs = nh.serviceClient<wam_srvs::Play>(wam_namespace + "/play_motion", true); // true to mark persistent connection -- meaning it may not always be valid
+	link_arm_srvs = nh.serviceClient<wam_srvs::Link>(wam_namespace + "/link_arm");
+	unlink_arm_srvs = nh.serviceClient<std_srvs::Empty>(wam_namespace + "/unlink_arm");
+	start_visual_fix_srvs = nh.serviceClient<std_srvs::Empty>(wam_namespace + "/start_visual_fix");
+	stop_visual_fix_srvs = nh.serviceClient<std_srvs::Empty>(wam_namespace + "/stop_visual_fix");
+	follow_path_srvs = nh.serviceClient<wam_srvs::FollowPath>(wam_namespace + "/follow_path");
+	get_tool_pose_srvs = nh.serviceClient<wam_srvs::GetToolPose>(wam_namespace + "/get_tool_pose");
 
 	// ROS Subscribers
-	pose_sub = nh.subscribe(wam_namespace + "/wam/pose", 1, &ArmControl::pose_cb, this);
-	joint_sub = nh.subscribe(wam_namespace + "/wam/joint_states", 1, &ArmControl::joint_state_cb, this);
-	jacobian_sub = nh.subscribe(wam_namespace + "/wam/jacobian", 1, &ArmControl::jacobian_cb, this);
+	pose_sub = nh.subscribe(wam_namespace + "/pose", 1, &ArmControl::pose_cb, this);
+	joint_sub = nh.subscribe(wam_namespace + "/joint_states", 1, &ArmControl::joint_state_cb, this);
+	jacobian_sub = nh.subscribe(wam_namespace + "/jacobian", 1, &ArmControl::jacobian_cb, this);
 	// ros::spinOnce();
 }
 
@@ -76,8 +74,6 @@ ArmControl::~ArmControl()
 void ArmControl::initialize_wam_connection()
 {
 	bool connected = false;
-	std::string z = "/wam";
-	std::string s = "/slax";
 	while (!connected) {
 		ros::master::V_TopicInfo topics;
 		ros::master::V_TopicInfo::iterator it;
@@ -85,40 +81,16 @@ void ArmControl::initialize_wam_connection()
 		for (it = topics.begin(); it != topics.end(); it++) {
 			const ros::master::TopicInfo& info = *it;
 			std::string topic_name = info.name;
-			if (topic_name.substr(0, z.size()) == z) {
-				connected_to_zeus = true;
+			if (topic_name.substr(0, wam_namespace.size()) == wam_namespace) {
+				connected = true;
+				break;
 			}
-			if (topic_name.substr(0, s.size()) == s) {
-				connected_to_slax = true;
-			}	
 		}
-		if (!connected_to_zeus && !connected_to_slax) { 
+		if (!connected) { 
+			std::cout << "topic " << wam_namespace << " not found" << std::endl;
 			std::cout << "waiting to connect to wam..." << std::endl;
 			ros::Duration(1.0).sleep();
-			continue; 
-		} else {
-			connected = true;
-			if (connected_to_zeus && (!connected_to_slax)) {
-				// wam_namespace = z;
-				dof = 4;
-			} else if ((!connected_to_zeus) && connected_to_slax) {
-				wam_namespace = s;
-				dof = 4;
-			} else {
-				while (true) {
-					std::string reply = string_input("Would you like to connect to zeus or slax?");
-					if (reply[0] == 'z' || reply[0] == 'Z') {
-						wam_namespace = z;
-						dof = 4;
-						break;
-					} else if (reply[0] == 's' || reply[0] == 'S') {
-						wam_namespace = s;
-						dof = 4;
-						break;
-					}
-				}
-			}
-		}
+		} 
 	}
 }
 

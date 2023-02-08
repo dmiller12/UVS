@@ -9,13 +9,12 @@ Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 
 UVSControl::UVSControl(ros::NodeHandle nh_)
 {
-	dof = 4;
-	total_joints = 0;
 	image_tol = 100.0;
 	default_lambda = 0.15;
 	reset = false;
 	move_now = false;
-	arm = new ArmControl(nh_);
+	dof = 0;
+	arm = new ArmControl(nh_, "/wam", 4);
 	// Get DOF of arm
 	do {
 		ROS_INFO_STREAM("Waiting to find robot DOF");
@@ -176,7 +175,14 @@ int UVSControl::move_step(bool continous_motion)
 
 	previous_joint_positions = current_joint_positions;
 	previous_eef_position = get_eef_position();
-	arm->call_move_joints(target_position, false);
+
+	if (confirm_movement) {
+		std::cout << "press enter to continue" << std::endl;
+		wait_for_enter();
+		arm->call_move_joints(target_position, false);
+	} else {
+		arm->call_move_joints(target_position, false);
+	}
 
 	std::cout << "// sleep time: " << sleep_time << std::endl;
 	ros::Duration(sleep_time).sleep();

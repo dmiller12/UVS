@@ -31,7 +31,7 @@ class UVSControl
 	bool move_now;
 	bool is_spread = false;
 	bool grip_closed = false;
-	bool teleop_move;
+	bool confirm_movement = true;
 	int dof;
 	int total_joints;
 	double image_tol;
@@ -42,7 +42,6 @@ class UVSControl
 	std::string robot_namespace;
 	std::string msg;
 	std::string prefix;
-	std::string filename;
 	Eigen::Vector3d temp_object_position{0.5, 0.0, 0.0};
 	Eigen::Vector3d object_position{0.5, 0.0, 0.0};
 	Eigen::VectorXd previous_eef_position;

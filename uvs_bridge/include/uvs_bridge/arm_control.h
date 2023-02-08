@@ -35,8 +35,6 @@ typedef Eigen::Matrix< double, 7, 1 > Vector7d;
 class ArmControl {
     public:
         // global variables
-        bool connected_to_zeus;
-        bool connected_to_slax;
         int dof;
         std::string wam_namespace;
         // callback variables
@@ -48,7 +46,7 @@ class ArmControl {
         ros::Subscriber joint_sub;
         ros::Subscriber jacobian_sub;
         // initialization and destructor methods
-        ArmControl(ros::NodeHandle nh);
+        ArmControl(ros::NodeHandle nh, std::string wam_namespace, int dof);
         ~ArmControl();
         void initialize_wam_connection();
         // service call methods
