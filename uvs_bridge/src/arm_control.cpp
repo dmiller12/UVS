@@ -76,7 +76,7 @@ ArmControl::~ArmControl()
 void ArmControl::initialize_wam_connection()
 {
 	bool connected = false;
-	std::string z = "/zeus";
+	std::string z = "/wam";
 	std::string s = "/slax";
 	while (!connected) {
 		ros::master::V_TopicInfo topics;
@@ -99,8 +99,8 @@ void ArmControl::initialize_wam_connection()
 		} else {
 			connected = true;
 			if (connected_to_zeus && (!connected_to_slax)) {
-				wam_namespace = z;
-				dof = 7;
+				// wam_namespace = z;
+				dof = 4;
 			} else if ((!connected_to_zeus) && connected_to_slax) {
 				wam_namespace = s;
 				dof = 4;
@@ -109,7 +109,7 @@ void ArmControl::initialize_wam_connection()
 					std::string reply = string_input("Would you like to connect to zeus or slax?");
 					if (reply[0] == 'z' || reply[0] == 'Z') {
 						wam_namespace = z;
-						dof = 7;
+						dof = 4;
 						break;
 					} else if (reply[0] == 's' || reply[0] == 'S') {
 						wam_namespace = s;
