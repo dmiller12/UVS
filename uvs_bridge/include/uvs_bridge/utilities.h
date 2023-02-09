@@ -159,6 +159,8 @@ bool pseudoInverse(const _Matrix_Type_ &a, _Matrix_Type_ &result, double epsilon
 
     result = svd.matrixV() * _Matrix_Type_((svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0)).asDiagonal() *
              svd.matrixU().adjoint();
+
+    return 1; // need additional checks?
 }
 
 Eigen::Vector3d toEulerAngle(const Eigen::VectorXd &q)
@@ -299,10 +301,10 @@ void print_joint_position(sensor_msgs::JointState joints, std::string msg, int d
 //     return fp;
 // }
 
-Eigen::VectorXd vector_target(Eigen::VectorXd current_state, int idx, double delta)
+Eigen::VectorXd vector_target(Eigen::VectorXd current_state, size_t idx, double delta)
 {
     Eigen::VectorXd target_state(current_state.size());
-    for (int i = 0; i < current_state.size(); ++i)
+    for (size_t i = 0; i < (size_t)current_state.size(); ++i)
     {
         if (i != idx)
         {
@@ -316,24 +318,5 @@ Eigen::VectorXd vector_target(Eigen::VectorXd current_state, int idx, double del
     return target_state;
 }
 
-Eigen::VectorXd vector_target(Eigen::VectorXd current_state, std::vector<int> joints, double delta)
-{
-    Eigen::VectorXd target_state(current_state.size());
-    for (size_t i = 0; i < current_state.size(); ++i)
-    {
-        for (size_t j = 0; j < joints.size(); ++j)
-        {
-            if (i == (joints[j] - 1))
-            {
-                target_state[i] = (current_state[i] + delta);
-            }
-            else
-            {
-                target_state[i] = current_state[i];
-            }
-        }
-    }
-    return target_state;
-}
 
 #endif // UTILITIES_H

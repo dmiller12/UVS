@@ -171,11 +171,6 @@ std::string current_time()
     return date_string;
 }
 
-inline const char * const BoolToString(bool b)
-{
-  return b ? "true" : "false";
-}
-
 /*************************************************************************
  * INPUT UTILITIES
  *************************************************************************/
@@ -263,7 +258,7 @@ Eigen::VectorXd all_joint_positions_input(int dof)
     return return_vector;
 }
 
-void single_joint_position_input(int dof, Eigen::VectorXd& target) 
+void single_joint_position_input(Eigen::VectorXd& target) 
 { // asks user to set position of one joint and sets joint in current_position vector
     std::cout << "which joint would you like to move?" << std::endl;
     int idx = (int)double_input(0, 7);
@@ -271,11 +266,11 @@ void single_joint_position_input(int dof, Eigen::VectorXd& target)
     target[idx-1] = double_input(JOINT_RANGES[idx-1][0], JOINT_RANGES[idx-1][1]);
 }
 
-void single_joint_delta_input(int dof, Eigen::VectorXd& target) 
+void single_joint_delta_input(Eigen::VectorXd& target) 
 { // asks user to set perturbation delta for one joint and sets position in target vector
     std::cout << "which joint would you like to move?" << std::endl;
     int idx = (int)double_input(0, 7); 
-    double deg, r;
+    double deg;
     std::string s = "";
     std::stringstream ss;
     ss.clear();

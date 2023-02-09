@@ -199,7 +199,7 @@ bool ArmControl::move_one_joint()
 { // move single joint according to users input in joint space and move arm
 	print_joint_positions_to_terminal();
 	Eigen::VectorXd target = get_positions();
-    single_joint_position_input(dof, target);
+    single_joint_position_input(target);
 	bool block_control = boolean_input("Would you like to set blocking to true or false? >> ");
 	return call_move_joints(target, block_control);;
 }
@@ -230,7 +230,7 @@ bool ArmControl::move_one_joint_by_delta()
 { // perturb single joint by radian of users choosing and move arm
 	print_joint_positions_to_terminal();
 	Eigen::VectorXd target = get_positions();
-    single_joint_delta_input(dof, target);
+    single_joint_delta_input(target);
 	bool block_control = boolean_input("Would you like to set blocking to true or false? >> ");
 	return call_move_joints(target, block_control);;
 }
