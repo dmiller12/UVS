@@ -319,9 +319,9 @@ Eigen::VectorXd vector_target(Eigen::VectorXd current_state, int idx, double del
 Eigen::VectorXd vector_target(Eigen::VectorXd current_state, std::vector<int> joints, double delta)
 {
     Eigen::VectorXd target_state(current_state.size());
-    for (int i = 0; i < current_state.size(); ++i)
+    for (size_t i = 0; i < current_state.size(); ++i)
     {
-        for (int j = 0; j < joints.size(); ++j)
+        for (size_t j = 0; j < joints.size(); ++j)
         {
             if (i == (joints[j] - 1))
             {

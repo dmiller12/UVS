@@ -58,8 +58,8 @@ class UVSControl
 	Eigen::VectorXd calculate_step(const Eigen::VectorXd &current_error_value);
 	Eigen::Matrix<double, 7, 1> goal_joint_angles;
 	bool convergence_check(const Eigen::VectorXd &current_error);
-	void converge(double alpha, int max_iterations, bool continous_motion);
-	int move_step(bool continous_motion);
+	void converge(double alpha, int max_iterations);
+	int move_step();
 	bool broyden_update(double alpha);
 	bool jacobian_estimate(double perturbation_delta);
 	void loop();

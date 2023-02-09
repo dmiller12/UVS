@@ -225,7 +225,7 @@ double double_input(double min, double max)
 Eigen::VectorXd vectorxd_input(double min, double max, std::vector<std::string> terminal_output)
 { // gets users input to store in return vector
     Eigen::VectorXd return_vector(terminal_output.size());
-    for (int i = 0; i < terminal_output.size(); ++i) {
+    for (size_t i = 0; i < terminal_output.size(); ++i) {
         std::cout << terminal_output[i] << std::endl;
         return_vector[i] = double_input(min, max);
     }

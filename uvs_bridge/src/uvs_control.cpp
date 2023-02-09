@@ -144,7 +144,7 @@ bool UVSControl::broyden_update(double alpha)
 	return true;
 }
 
-int UVSControl::move_step(bool continous_motion)
+int UVSControl::move_step()
 { // step through one loop of VS
 	Eigen::VectorXd current_error;
 	Eigen::VectorXd current_joint_positions;
@@ -190,14 +190,14 @@ int UVSControl::move_step(bool continous_motion)
 }
 
 
-void UVSControl::converge(double alpha, int max_iterations, bool continous_motion)
+void UVSControl::converge(double alpha, int max_iterations)
 {
 	int c;
 	std::cout << "\n**************************************" << std::endl;
 	for (int i = 0; i < max_iterations; ++i) {
 		std::cout << "iteration: " << i << std::endl;
 		ros::Time begin = ros::Time::now();
-		c = move_step(continous_motion);
+		c = move_step();
 		switch (c) {
 			case 0: // convergence - return early
 				return;
@@ -261,12 +261,9 @@ void UVSControl::loop()
 { // main loop for user interaction
 	bool jacobian_initialized = false;
 	bool exit_loop = false;
-	bool continous_motion = true;
 	double perturbation_delta = 0.0875;
 	double alpha = 1.0; // update rate
 	int max_iterations = 25;
-	double d;
-	int c;
 	Eigen::VectorXd pose;
 	std::string line;
 	std::string s;
@@ -309,7 +306,7 @@ void UVSControl::loop()
 			break;
 		case 'v':
 			if (ready() && jacobian_initialized) {
-				converge(alpha, max_iterations - 1, continous_motion);
+				converge(alpha, max_iterations - 1);
 				lambda = default_lambda;
 			} else {
 				ROS_WARN_STREAM("Jacobian is not initialized");
@@ -317,7 +314,7 @@ void UVSControl::loop()
 			break;
 		case 's':
 			if (ready() && jacobian_initialized) {
-				converge(alpha, 1, false);
+				converge(alpha, 1);
 				lambda = default_lambda;
 			} else {
 				ROS_WARN_STREAM("Jacobian is not initialized");
