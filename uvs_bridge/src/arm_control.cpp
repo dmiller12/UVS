@@ -2,13 +2,13 @@
 
 ArmControl::ArmControl(ros::NodeHandle nh, std::string wam_namespace, int dof) {
 	// initialize global variables
-	dof = dof;
+	this->dof = dof;
 	std::string t = current_time();
-    wam_namespace = wam_namespace;
+    this->wam_namespace = wam_namespace;
 	initialize_wam_connection();
 	ROS_INFO_STREAM("ArmControl: Connected to " << wam_namespace << " with " << dof << " DOF");
 	// Arm Services
-	gravity_comp_srvs = nh.serviceClient<wam_srvs::GravityComp>(wam_namespace + "/wam/gravity_comp");
+	gravity_comp_srvs = nh.serviceClient<wam_srvs::GravityComp>(wam_namespace + "/gravity_comp");
 	haptic_sphere_srvs = nh.serviceClient<wam_srvs::HapticSphere>(wam_namespace + "/haptic_sphere");
 	go_home_srvs = nh.serviceClient<std_srvs::Empty>(wam_namespace + "/go_home");
 	hold_jnt_srvs = nh.serviceClient<wam_srvs::Hold>(wam_namespace + "/hold_joint_pos");
@@ -267,7 +267,7 @@ bool ArmControl::move_to_initial_position()
 { // move arm to initial postition
 	if (dof == 4) {
 		Eigen::VectorXd initial_pos(4);
-		initial_pos << 0, 0, 0, 1.57;
+		initial_pos << 0, 0.3, 0, 1.57;
 		return call_move_joints(initial_pos, true);
 	} else if (dof == 7) {
 		Eigen::VectorXd initial_pos(7);

@@ -7,6 +7,7 @@
 
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/SVD>
+#include <eigen3/Eigen/QR>
 #include <ros/ros.h>
 #include <iostream>
 #include <vector>
@@ -152,13 +153,17 @@ std::vector<Eigen::Vector2d> slice(const std::vector<Eigen::Vector2d> &v, int st
 template <typename _Matrix_Type_>
 bool pseudoInverse(const _Matrix_Type_ &a, _Matrix_Type_ &result, double epsilon = std::numeric_limits<typename _Matrix_Type_::Scalar>::epsilon())
 {
-    Eigen::JacobiSVD<_Matrix_Type_> svd = a.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
+    // Eigen::JacobiSVD<_Matrix_Type_> svd = a.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
 
-    typename _Matrix_Type_::Scalar tolerance = epsilon * std::max(a.cols(), a.rows()) *
-                                               svd.singularValues().array().abs().maxCoeff();
+    // typename _Matrix_Type_::Scalar tolerance = epsilon * std::max(a.cols(), a.rows()) *
+    //                                            svd.singularValues().array().abs().maxCoeff();
 
-    result = svd.matrixV() * _Matrix_Type_((svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0)).asDiagonal() *
-             svd.matrixU().adjoint();
+    // result = svd.matrixV() * _Matrix_Type_((svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0)).asDiagonal() *
+    //          svd.matrixU().adjoint();
+
+    result = a.completeOrthogonalDecomposition().pseudoInverse();
+    double cond = result.norm() * a.norm();
+    std::cout << "Condition number: " << cond << std::endl;
 
     return 1; // need additional checks?
 }

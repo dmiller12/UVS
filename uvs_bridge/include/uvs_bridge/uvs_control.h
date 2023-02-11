@@ -31,7 +31,7 @@ class UVSControl
 	bool move_now;
 	bool is_spread = false;
 	bool grip_closed = false;
-	bool confirm_movement = true;
+	bool confirm_movement = false;
 	int dof;
 	int total_joints;
 	double image_tol;
@@ -50,7 +50,7 @@ class UVSControl
 	Eigen::MatrixXd initial_jacobian;
 	Eigen::MatrixXd jacobian;
 	Eigen::MatrixXd jacobian_inverse;
-	std::vector<int> active_joints = {1, 1, 1, 1, 0, 0, 0}; // Only first 4 joints
+	std::vector<int> active_joints = {1, 1, 0, 1, 0, 0, 0}; // Only first 4 joints
 	UVSControl(ros::NodeHandle nh);
 	~UVSControl();
 	Eigen::VectorXd calculate_delta_q();

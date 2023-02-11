@@ -9,11 +9,11 @@ Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 
 UVSControl::UVSControl(ros::NodeHandle nh_)
 {
-	image_tol = 100.0;
+	image_tol = 50.0;
 	default_lambda = 0.15;
 	reset = false;
 	move_now = false;
-	dof = 0;
+	dof = 4; // TODO: separate dof from active joints
 	arm = new ArmControl(nh_, "/wam", 4);
 	// Get DOF of arm
 	do {
@@ -30,6 +30,7 @@ UVSControl::UVSControl(ros::NodeHandle nh_)
 		ROS_WARN_STREAM("Invalid DOF, reset and try again");
 		exit(EXIT_FAILURE);
 	}
+	dof = 3;
 	ROS_INFO_STREAM("Robot has " << dof << " DOF");
 	error_sub = nh_.subscribe("/user_interface/image_error", 1, &UVSControl::error_cb, this);
 	eef_sub = nh_.subscribe("/user_interface/end_effector", 1, &UVSControl::eef_cb, this);
@@ -75,9 +76,7 @@ Eigen::VectorXd UVSControl::calculate_target(const Eigen::VectorXd &current_stat
 Eigen::VectorXd UVSControl::calculate_step(const Eigen::VectorXd &current_error_value)
 { // calculates new motion step to take with the control law: step = −λJ+e
 	Eigen::VectorXd step;
-	Eigen::VectorXd new_joints;
-	step = -(jacobian_inverse * current_error_value).transpose();
-	new_joints = arm->get_positions() + step;
+	step = jacobian_inverse * current_error_value;
 	step *= 0.1;
 	return step;
 }
@@ -128,7 +127,7 @@ bool UVSControl::broyden_update(double alpha)
 		std::cout << "dy: \n" << dy.format(CleanFmt) << std::endl;
 		return true;
 	}
-	update = ((dy - jacobian * dq) * dq.transpose()) / (dq_norm * dq_norm);
+	update = ((dy - jacobian * dq) * dq.transpose()) / (dq.transpose()* dq);
 	previous_jacobian = jacobian;
 	jacobian = jacobian + (alpha * update);
 	if (!pseudoInverse(jacobian, jacobian_inverse)){
@@ -152,7 +151,7 @@ int UVSControl::move_step()
 	Eigen::VectorXd target_position;
 	Eigen::VectorXd predicted_times;
 	Eigen::VectorXd current_velocity;
-	double sleep_time = 1.0;
+	double sleep_time = 0.2;
 	// grab and use current error, check for convergence
 	current_error = get_error();
 	if (convergence_check(current_error)) {
@@ -162,9 +161,7 @@ int UVSControl::move_step()
 	// grab and use current joint positions, check if valid
 	current_joint_positions = arm->get_positions();
 	target_position = calculate_target(current_joint_positions, step_delta);
-	if (!limit_check(target_position, total_joints)) {
-		return 1;
-	}
+
 	// write to screen for debugging
 	std::cout << "current_error: \n" << current_error.format(CleanFmt) << std::endl;
 	std::cout << "previous_joint_positions: \n" << previous_joint_positions.format(CleanFmt) << std::endl;
@@ -173,13 +170,20 @@ int UVSControl::move_step()
 	std::cout << "step_delta: \n" << step_delta.format(CleanFmt) << std::endl;
 	std::cout << "target_position: \n" << target_position.format(CleanFmt) << std::endl;
 
+	if (!limit_check(target_position, total_joints)) {
+		return 1;
+	}
+
 	previous_joint_positions = current_joint_positions;
 	previous_eef_position = get_eef_position();
 
 	if (confirm_movement) {
-		std::cout << "press enter to continue" << std::endl;
-		wait_for_enter();
-		arm->call_move_joints(target_position, false);
+		bool response = boolean_input("continue [y/n]");
+		if (response) {
+			arm->call_move_joints(target_position, false);
+		} else {
+			return 1;
+		}
 	} else {
 		arm->call_move_joints(target_position, false);
 	}
@@ -236,7 +240,7 @@ bool UVSControl::jacobian_estimate(double perturbation_delta)
 			position = arm->get_positions();
 			target = vector_target(position, i, perturbation_delta);
 			arm->call_move_joints(target, true);
-			ros::Duration(0.2).sleep();
+			ros::Duration(1).sleep();
 			e2 = get_eef_position();
 			ros::Duration(0.2).sleep();
 			arm->call_move_joints(position, true);
@@ -261,8 +265,8 @@ void UVSControl::loop()
 { // main loop for user interaction
 	bool jacobian_initialized = false;
 	bool exit_loop = false;
-	double perturbation_delta = 0.0875;
-	double alpha = 1.0; // update rate
+	double perturbation_delta = 0.15;
+	double alpha = 0.5; // update rate
 	int max_iterations = 25;
 	Eigen::VectorXd pose;
 	std::string line;
@@ -279,6 +283,7 @@ void UVSControl::loop()
 				  << "\n\ts: Compute and move one step"\
 				  << "\n\ti: Move to initial position"
 				  << "\n\th: Move to home position"
+				  << "\n\tw Print info"
 				  << "\n\tq: quit"
 				  << "\n\t>> " << std::endl;
 		std::getline(std::cin, line);
@@ -295,15 +300,20 @@ void UVSControl::loop()
 			break;
 		case 'j':
 			if (ready()) {
-				for (int i = 0; i < dof; ++i) {
-					active_joints[i] = 1;
-				}
+				// for (int i = 0; i < dof; ++i) {
+				// 	active_joints[i] = 1;
+				// }
 				jacobian_initialized = jacobian_estimate(perturbation_delta);
 			}
 			break;
 		case 'i':
-			arm->move_to_initial_position();
-			break;
+			{
+				bool res = arm->move_to_initial_position();
+				if (!res) {
+					ROS_WARN_STREAM("unsuccesful move");
+				}
+				break;
+			}
 		case 'v':
 			if (ready() && jacobian_initialized) {
 				converge(alpha, max_iterations - 1);
@@ -325,6 +335,9 @@ void UVSControl::loop()
 			break;
 		case 'q':
 			exit_loop = true;
+			break;
+		case 'w':
+			arm->print_information_to_terminal();
 			break;
 		default:
 			ROS_WARN_STREAM("Unknown option");
