@@ -32,8 +32,8 @@ UVSControl::UVSControl(ros::NodeHandle nh_)
 	}
 	dof = 3;
 	ROS_INFO_STREAM("Robot has " << dof << " DOF");
-	error_sub = nh_.subscribe("/user_interface/image_error", 1, &UVSControl::error_cb, this);
-	eef_sub = nh_.subscribe("/user_interface/end_effector", 1, &UVSControl::eef_cb, this);
+	error_sub = nh_.subscribe("/tracker/image_error", 1, &UVSControl::error_cb, this);
+	eef_sub = nh_.subscribe("/tracker/end_effector", 1, &UVSControl::eef_cb, this);
 }
 
 UVSControl::~UVSControl()

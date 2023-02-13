@@ -147,20 +147,9 @@ std::vector<Eigen::Vector2d> slice(const std::vector<Eigen::Vector2d> &v, int st
     return subv;
 }
 
-/// Moore-Penrose pseudoinverse
-/** Implementation taken from: http://eigen.tuxfamily.org/bz/show_bug.cgi?id=257
- */
 template <typename _Matrix_Type_>
-bool pseudoInverse(const _Matrix_Type_ &a, _Matrix_Type_ &result, double epsilon = std::numeric_limits<typename _Matrix_Type_::Scalar>::epsilon())
+bool pseudoInverse(const _Matrix_Type_ &a, _Matrix_Type_ &result)
 {
-    // Eigen::JacobiSVD<_Matrix_Type_> svd = a.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
-
-    // typename _Matrix_Type_::Scalar tolerance = epsilon * std::max(a.cols(), a.rows()) *
-    //                                            svd.singularValues().array().abs().maxCoeff();
-
-    // result = svd.matrixV() * _Matrix_Type_((svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0)).asDiagonal() *
-    //          svd.matrixU().adjoint();
-
     result = a.completeOrthogonalDecomposition().pseudoInverse();
     double cond = result.norm() * a.norm();
     std::cout << "Condition number: " << cond << std::endl;

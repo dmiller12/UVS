@@ -12,5 +12,5 @@
         <param name="autofocus" value="true" />
         <param name="pixel_format" value="yuyv" />
     </node>
-    <node pkg="uvs_bridge" type="user_interface" name="user_interface" output="screen" launch-prefix="xterm -e"></node>
+    <node pkg="uvs_bridge" type="tracker" name="tracker" output="screen" launch-prefix="xterm -e"></node>
 </launch>

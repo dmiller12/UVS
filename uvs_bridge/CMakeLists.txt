@@ -78,19 +78,14 @@ target_link_libraries(uvs_control
   arm_control
 )
 
-add_executable(user_interface src/user_interface.cpp)
-target_link_libraries(user_interface
+add_executable(tracker src/tracker.cpp)
+target_link_libraries(tracker
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   ${OpenCV_LIBRARIES}
 )
-add_dependencies(user_interface uvs_bridge_generate_messages_cpp)
+add_dependencies(tracker uvs_bridge_generate_messages_cpp)
 
-#add_executable(calculate_error src/calculate_error.cpp)
-#target_link_libraries(calculate_error
-#  ${catkin_LIBRARIES}
-#  ${Eigen_LIBRARIES}
-#)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
