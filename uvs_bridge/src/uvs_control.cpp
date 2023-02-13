@@ -40,6 +40,7 @@ UVSControl::~UVSControl()
 { // shutdown ROS subscribers properly
 	error_sub.shutdown();
 	eef_sub.shutdown();
+	delete arm;
 }
 
 Eigen::VectorXd UVSControl::calculate_delta_q()
@@ -88,11 +89,6 @@ bool UVSControl::convergence_check(const Eigen::VectorXd &current_error)
 	Eigen::Vector3d vertical(0, 0, 1);
 	if (n < image_tol) {
 		std::cout << "current error norm is less than image tolerance -- we have arrived at our destination" << std::endl;
-		// // for sphere movements
-		// object_position = temp_object_position;
-		// Eigen::Vector3d tool_position = getToolPosition(arm->get_positions(), total_joints);
-		// std::cout << "Object position:" << object_position[0] << ", " << object_position[1] << ", " << object_position[2] << std::endl;
-		// spherical_position = cartesian_to_spherical(tool_position - object_position);
 		return true;
 	}
 	lambda = std::max(0.1, pixel_step_size / n);

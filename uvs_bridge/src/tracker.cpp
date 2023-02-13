@@ -34,15 +34,13 @@ void ImageConverter::mouseHandle( int event, int u, int v, int flags)
 {
 	switch (event) {
 		case cv::EVENT_LBUTTONDOWN:
-			// std::cout << "Left Button Down at: " << u << " " << v << std::endl;
 			clicked_points.push_back(cv::Point(u, v));
 			if (clicked_points.size() == 2) {
 				initialize_tracker = true;
 			}
 			break;
-		case cv::EVENT_RBUTTONDOWN: 
+		case cv::EVENT_RBUTTONDOWN:
 			clicked_points.clear();
-			// std::cout << "Right Button Down at: " << x << " " << y << std::endl;
 			break;
 	}
 }
