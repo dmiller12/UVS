@@ -21,5 +21,5 @@ build:
 	@docker build -t uvs .
 
 .PHONY: term
-term:
-	docker run -it --rm --net=host --privileged ${DOCKER_ARGS} uvs bin/bash
+term: build
+	docker run -it --rm --net=host --privileged ${DOCKER_ARGS} uvs /bin/bash
