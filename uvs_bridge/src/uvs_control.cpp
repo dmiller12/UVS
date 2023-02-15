@@ -270,7 +270,7 @@ void UVSControl::loop()
 				  << "\n\ts: Compute and move one step"\
 				  << "\n\ti: Move to initial position"
 				  << "\n\th: Move to home position"
-				  << "\n\tp Print info"
+				  << "\n\tp: Print info"
 				  << "\n\tq: quit"
 				  << "\n\t>> " << std::endl;
 		std::getline(std::cin, line);
