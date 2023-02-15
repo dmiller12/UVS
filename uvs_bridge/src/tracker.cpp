@@ -104,7 +104,7 @@ void ImageConverter::spin()
 	ros::Rate r(60); 
 	std::vector<cv::Rect2d> v;
 	std::cout << "***********************************************************************************************" << std::endl;
-	std::cout << "* User Interface Node" << std::endl;
+	std::cout << "* Tracker Node" << std::endl;
 	std::cout << "***********************************************************************************************" << std::endl;
 	std::cout << "* First click the top left and bottom right corners to set the goal position" << std::endl;
 	std::cout << "* Then click the top left and bottom right corners to set the end effector position" << std::endl;
