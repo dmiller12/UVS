@@ -114,7 +114,7 @@ bool UVSControl::broyden_update(double alpha)
 		std::cout << "dy: \n" << dy.format(CleanFmt) << std::endl;
 		return true;
 	}
-	update = ((dy - jacobian * dq) * dq.transpose()) / (dq.transpose()* dq);
+	update = ((dy - jacobian * dq) * dq.transpose()) / ((dq.transpose() * dq) + 0.001);
 	previous_jacobian = jacobian;
 	jacobian = jacobian + (alpha * update);
 	if (!pseudoInverse(jacobian, jacobian_inverse)){
