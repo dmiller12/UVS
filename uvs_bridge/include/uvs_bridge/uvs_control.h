@@ -35,8 +35,6 @@ class UVSControl
 	int dof;
 	int total_joints;
 	double image_tol;
-	double default_lambda;
-	double lambda;
 	double control_radius;
 	double yaw_offset = 0.0;
 	std::string robot_namespace;

@@ -10,7 +10,6 @@ Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 UVSControl::UVSControl(ros::NodeHandle nh_)
 {
 	image_tol = 50.0;
-	default_lambda = 0.15;
 	reset = false;
 	move_now = false;
 	dof = 4; // TODO: separate dof from active joints
@@ -83,21 +82,13 @@ Eigen::VectorXd UVSControl::calculate_step(const Eigen::VectorXd &current_error_
 }
 
 bool UVSControl::convergence_check(const Eigen::VectorXd &current_error)
-{ // should we make lambda larger as we get closer to the target? Test
-	double pixel_step_size = 30.0;
+{ 
 	double n = current_error.norm();
-	Eigen::Vector3d vertical(0, 0, 1);
 	if (n < image_tol) {
 		std::cout << "current error norm is less than image tolerance -- we have arrived at our destination" << std::endl;
 		return true;
 	}
-	lambda = std::max(0.1, pixel_step_size / n);
-	if ((1.0 - lambda) * n < image_tol) {
-		lambda = 1.0 - image_tol / n;
-		std::cout << "Next move places EEF too close to target - adjusting lambda to " << lambda << std::endl;
-	}
 	std::cout << "current error norm: " << n << std::endl;
-	std::cout << "lambda: " << lambda << std::endl;
 	return false;
 }
 
@@ -270,7 +261,6 @@ void UVSControl::loop()
 	Eigen::VectorXd pose;
 	std::string line;
 	std::string s;
-	lambda = default_lambda; // convergence rate
 	while (ros::ok() && !exit_loop) {
 		std::cout << "************************************************************************************************"
 				  << "\nSelect option:"
@@ -305,7 +295,6 @@ void UVSControl::loop()
 		case 'v':
 			if (ready() && jacobian_initialized) {
 				converge(alpha, max_iterations - 1);
-				lambda = default_lambda;
 			} else {
 				ROS_WARN_STREAM("Jacobian is not initialized");
 			}
@@ -313,7 +302,6 @@ void UVSControl::loop()
 		case 's':
 			if (ready() && jacobian_initialized) {
 				converge(alpha, 1);
-				lambda = default_lambda;
 			} else {
 				ROS_WARN_STREAM("Jacobian is not initialized");
 			}
