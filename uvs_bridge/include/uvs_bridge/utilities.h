@@ -295,19 +295,21 @@ void print_joint_position(sensor_msgs::JointState joints, std::string msg, int d
 //     return fp;
 // }
 
-Eigen::VectorXd vector_target(Eigen::VectorXd current_state, size_t idx, double delta)
+Eigen::VectorXd vector_target(Eigen::VectorXd current_state, int idx, double delta)
 {
     Eigen::VectorXd target_state(current_state.size());
-    for (size_t i = 0; i < (size_t)current_state.size(); ++i)
+    int i = 0;
+    for (const auto& cur_val : current_state)
     {
         if (i != idx)
         {
-            target_state[i] = current_state[i];
+            target_state[i] = cur_val;
         }
         else
         {
-            target_state[i] = (current_state[i] + delta);
+            target_state[i] = (cur_val + delta);
         }
+        ++i;
     }
     return target_state;
 }

@@ -24,7 +24,7 @@ Eigen::Vector2d J4(-0.88, 3.13);
 Eigen::Vector2d J5(-4.73, 1.35);
 Eigen::Vector2d J6(-1.52, 1.52);
 Eigen::Vector2d J7(-2.34, 2.34);
-std::array<Eigen::Vector2d, 7> JOINT_RANGES = {J1, J2, J3, J4, J5, J6, J7};
+const std::array<Eigen::Vector2d, 7> JOINT_RANGES = {J1, J2, J3, J4, J5, J6, J7};
 
 float sign(double num)
 {
