@@ -232,15 +232,18 @@ bool UVSControl::jacobian_estimate(double perturbation_delta)
 	for (int i = 0; i < total_joints; ++i) {
 		if (active_joints[i]) {
 			ros::Duration(0.2).sleep();
-			e1 = get_eef_position();
 			position = arm->get_positions();
+			target = vector_target(position, i, -perturbation_delta);
+			arm->call_move_joints(target, true);
+			ros::Duration(0.2).sleep();
+			e1 = get_eef_position();
 			target = vector_target(position, i, perturbation_delta);
 			arm->call_move_joints(target, true);
-			ros::Duration(1).sleep();
+			ros::Duration(0.2).sleep();
 			e2 = get_eef_position();
 			ros::Duration(0.2).sleep();
 			arm->call_move_joints(position, true);
-			jacobian.col(j) = (e2 - e1) / perturbation_delta;
+			jacobian.col(j) = (e2 - e1) / (2 * perturbation_delta);
 			j++;
 		}
 	}
