@@ -1,5 +1,5 @@
 /*
- * lpetrich 01/07/18
+ * Adapted from lpetrich 01/07/18
  */
 
 #ifndef UVS_CONTROL_H

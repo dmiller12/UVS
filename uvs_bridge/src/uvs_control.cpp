@@ -274,34 +274,23 @@ void UVSControl::loop()
 	while (ros::ok() && !exit_loop) {
 		std::cout << "************************************************************************************************"
 				  << "\nSelect option:"
-				  << "\n\tp: Lock joint position"
-				  << "\n\tu: Unlock joint position"
 				  << "\n\tm: Move one joint"
-				  << "\n\tj: Compute Jacobian"
+				  << "\n\tj: Compute Jacobian (Central Diff)"
 				  << "\n\tv: Complete VS convergence with set max iterations"
 				  << "\n\ts: Compute and move one step"\
 				  << "\n\ti: Move to initial position"
 				  << "\n\th: Move to home position"
-				  << "\n\tw Print info"
+				  << "\n\tp Print info"
 				  << "\n\tq: quit"
 				  << "\n\t>> " << std::endl;
 		std::getline(std::cin, line);
 
 		switch (line[0]) {
-		case 'p':
-			arm->lock_joint_position(true);
-			break;
-		case 'u':
-			arm->lock_joint_position(false);
-			break;
 		case 'm':
 			arm->move_one_joint();
 			break;
 		case 'j':
 			if (ready()) {
-				// for (int i = 0; i < dof; ++i) {
-				// 	active_joints[i] = 1;
-				// }
 				jacobian_initialized = jacobian_estimate(perturbation_delta);
 			}
 			break;
@@ -309,7 +298,7 @@ void UVSControl::loop()
 			{
 				bool res = arm->move_to_initial_position();
 				if (!res) {
-					ROS_WARN_STREAM("unsuccesful move");
+					ROS_WARN_STREAM("unsuccessful move");
 				}
 				break;
 			}
@@ -335,7 +324,7 @@ void UVSControl::loop()
 		case 'q':
 			exit_loop = true;
 			break;
-		case 'w':
+		case 'p':
 			arm->print_information_to_terminal();
 			break;
 		default:
