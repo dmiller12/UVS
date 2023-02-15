@@ -103,13 +103,11 @@ void ImageConverter::spin()
 	int k;
 	ros::Rate r(60); 
 	std::vector<cv::Rect2d> v;
-	std::cout << "***********************************************************************************************" << std::endl;
-	std::cout << "* Tracker Node" << std::endl;
-	std::cout << "***********************************************************************************************" << std::endl;
-	std::cout << "* First click the top left and bottom right corners to set the goal position" << std::endl;
-	std::cout << "* Then click the top left and bottom right corners to set the end effector position" << std::endl;
-	std::cout << "* Do the left camera frame first, then the right camera frame" << std::endl;
-	std::cout << "***********************************************************************************************" << std::endl;
+	std::cout << "Select top left and bottom right corners for:" << std::endl;
+	std::cout << "\t Left frame goal position" << std::endl;
+	std::cout << "\t Left frame end effector" << std::endl;
+	std::cout << "\t Right frame goal position" << std::endl;
+	std::cout << "\t Right frame end effector" << std::endl;
 	while (ros::ok()) {
 		if (initialized_1 && initialized_2) {
 			cv::Mat frame(cv::Size(cv_ptr1->image.cols*2, cv_ptr1->image.rows), cv_ptr1->image.type(), cv::Scalar::all(0));
