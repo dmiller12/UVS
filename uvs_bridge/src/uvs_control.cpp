@@ -90,7 +90,7 @@ bool UVSControl::broyden_update(double alpha)
 	}
 	current_eef_position = get_eef_position();
 	dy = current_eef_position - previous_eef_position;
-	if (dy.norm() < 1) {
+	if (dy.norm() < 0) {
 		cout << "Small dy - no update" << endl;
 		std::cout << "dy: \n" << dy.format(CleanFmt) << std::endl;
 		return true;
