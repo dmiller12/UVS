@@ -7,7 +7,7 @@ Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 UVSControl::UVSControl(ros::NodeHandle nh_)
 {
 	image_tol = 50.0;
-	dof = 4; // TODO: separate dof from active joints
+	dof = 4;
 	arm = new ArmControl(nh_, "/wam", 4);
 	total_joints = 4;
 	dof = 3;
