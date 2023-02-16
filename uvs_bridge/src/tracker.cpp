@@ -123,9 +123,8 @@ void ImageConverter::spin()
 			multiTracker->update(frame);
 			v = multiTracker->getObjects();
 			// draw tracker
-			for (int i = 0; i < v.size(); i++) {
+			for (size_t i = 0; i < v.size(); i++) {
 				cv::rectangle(frame, v[i], CV_RGB(0,255,255), 2, 1);
-				// std::cout << v[i].tl().x << " " << v[i].br().x << std::endl;
 			}
 			if (v.size() == 4) {
 				image_error(v);
@@ -148,7 +147,7 @@ void ImageConverter::spin()
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "user_interface");
+	ros::init(argc, argv, "tracker");
 	ros::NodeHandle nh_("~");
 	ImageConverter ic(nh_);
 	ic.spin();

@@ -1,5 +1,5 @@
-#ifndef USER_INTERFACE_H
-#define USER_INTERFACE_H
+#ifndef TRACKER_H
+#define TRACKER_H
 
 #include <vector>
 #include "ros/ros.h"
@@ -73,4 +73,4 @@ private:
 	}
 };
 
-#endif // USER_INTERFACE_H
+#endif // TRACKER_H
