@@ -1,7 +1,3 @@
-/*
- * Adapted from lpetrich 01/07/18
- */
-
 #ifndef UVS_CONTROL_H
 #define UVS_CONTROL_H
 
@@ -27,21 +23,10 @@ class UVSControl
 {
   public:
 	ArmControl *arm;
-	bool reset;
-	bool move_now;
-	bool is_spread = false;
-	bool grip_closed = false;
 	bool confirm_movement = false;
 	int dof;
 	int total_joints;
 	double image_tol;
-	double control_radius;
-	double yaw_offset = 0.0;
-	std::string robot_namespace;
-	std::string msg;
-	std::string prefix;
-	Eigen::Vector3d temp_object_position{0.5, 0.0, 0.0};
-	Eigen::Vector3d object_position{0.5, 0.0, 0.0};
 	Eigen::VectorXd previous_eef_position;
 	Eigen::VectorXd previous_joint_positions;
 	Eigen::MatrixXd previous_jacobian;
@@ -94,7 +79,7 @@ class UVSControl
 	{
 		while (!new_eef) {
 			continue;
-		} // TODO fix so doesn't get stuck in iteration 6
+		}
 		new_eef = false;
 		return image_eef_pos;
 	}
@@ -109,10 +94,6 @@ class UVSControl
 			e[idx++] = current_error.points[i].x;
 			e[idx++] = current_error.points[i].y;
 		}
-		// for (int i = 0; i < e.size(); ++i) {
-		// 	std::cout << e[i] << " ";
-		// }
-		// std::cout << std::endl;
 		image_error_vector = e;
 		new_error = true;
 	}

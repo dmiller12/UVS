@@ -1,6 +1,3 @@
-/*
- * Adapted from lpetrich 27/06/18
- */
 #include <fstream>
 #include "uvs_bridge/uvs_control.h"
 using namespace std;
@@ -10,25 +7,9 @@ Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 UVSControl::UVSControl(ros::NodeHandle nh_)
 {
 	image_tol = 50.0;
-	reset = false;
-	move_now = false;
 	dof = 4; // TODO: separate dof from active joints
 	arm = new ArmControl(nh_, "/wam", 4);
-	// Get DOF of arm
-	do {
-		ROS_INFO_STREAM("Waiting to find robot DOF");
-		ros::Duration(1.0).sleep();
-		dof = arm->get_dof();
-	} while (dof == 0);
-	if (dof == 7) {
-		total_joints = 7;
-	}
-	else if (dof == 4) {
-		total_joints = 4;
-	} else {
-		ROS_WARN_STREAM("Invalid DOF, reset and try again");
-		exit(EXIT_FAILURE);
-	}
+	total_joints = 4;
 	dof = 3;
 	ROS_INFO_STREAM("Robot has " << dof << " DOF");
 	error_sub = nh_.subscribe("/tracker/image_error", 1, &UVSControl::error_cb, this);
@@ -117,12 +98,10 @@ bool UVSControl::broyden_update(double alpha)
 	update = ((dy - jacobian * dq) * dq.transpose()) / ((dq.transpose() * dq) + 0.001);
 	previous_jacobian = jacobian;
 	jacobian = jacobian + (alpha * update);
-	if (!pseudoInverse(jacobian, jacobian_inverse)){
-		return false;
-	}
+	pseudoInverse(jacobian, jacobian_inverse);
+
 	std::cout << "current_eef_position: \n" << current_eef_position.format(CleanFmt) << std::endl;
 	std::cout << "dq: \n" << dq.format(CleanFmt) << std::endl;
-	// std::cout << "dq_norm: \n" << dq_norm << std::endl;
 	std::cout << "dy: \n" << dy.format(CleanFmt) << std::endl;
 	std::cout << "update: \n" << update.format(CleanFmt) << std::endl;
 	std::cout << "jacobian: \n" << jacobian.format(CleanFmt) << std::endl;
@@ -136,8 +115,6 @@ int UVSControl::move_step()
 	Eigen::VectorXd current_joint_positions;
 	Eigen::VectorXd step_delta;
 	Eigen::VectorXd target_position;
-	Eigen::VectorXd predicted_times;
-	Eigen::VectorXd current_velocity;
 	double sleep_time = 0.2;
 	// grab and use current error, check for convergence
 	current_error = get_error();
@@ -149,14 +126,6 @@ int UVSControl::move_step()
 	current_joint_positions = arm->get_positions();
 	target_position = calculate_target(current_joint_positions, step_delta);
 
-	// write to screen for debugging
-	std::cout << "current_error: \n" << current_error.format(CleanFmt) << std::endl;
-	std::cout << "previous_joint_positions: \n" << previous_joint_positions.format(CleanFmt) << std::endl;
-	std::cout << "current_joint_positions: \n" << current_joint_positions.format(CleanFmt) << std::endl;
-	std::cout << "previous_eef_position: \n" << previous_eef_position.format(CleanFmt) << std::endl;
-	std::cout << "step_delta: \n" << step_delta.format(CleanFmt) << std::endl;
-	std::cout << "target_position: \n" << target_position.format(CleanFmt) << std::endl;
-
 	if (!limit_check(target_position, total_joints)) {
 		return 1;
 	}
@@ -165,17 +134,23 @@ int UVSControl::move_step()
 	previous_eef_position = get_eef_position();
 
 	if (confirm_movement) {
+		// write to screen for debugging
+		std::cout << "current_error: \n" << current_error.format(CleanFmt) << std::endl;
+		std::cout << "previous_joint_positions: \n" << previous_joint_positions.format(CleanFmt) << std::endl;
+		std::cout << "current_joint_positions: \n" << current_joint_positions.format(CleanFmt) << std::endl;
+		std::cout << "previous_eef_position: \n" << previous_eef_position.format(CleanFmt) << std::endl;
+		std::cout << "step_delta: \n" << step_delta.format(CleanFmt) << std::endl;
+		std::cout << "target_position: \n" << target_position.format(CleanFmt) << std::endl;
 		bool response = boolean_input("continue [y/n]");
 		if (response) {
 			arm->call_move_joints(target_position, false);
 		} else {
-			return 1;
+			return 0;
 		}
 	} else {
 		arm->call_move_joints(target_position, false);
 	}
 
-	std::cout << "// sleep time: " << sleep_time << std::endl;
 	ros::Duration(sleep_time).sleep();
 	return 2;
 }
@@ -192,16 +167,11 @@ void UVSControl::converge(double alpha, int max_iterations)
 		switch (c) {
 			case 0: // convergence - return early
 				return;
-			case 1: // joints out of limit, reset jacobian
-				jacobian = previous_jacobian;
-				std::cout << "target not within joint limits, resetting jacobian to: \n" << jacobian.format(CleanFmt) << std::endl;
-				break;
+			case 1: // joints out of limit
+				std::cout << "target not within joint limits, stopping \n" << std::endl;
+				return;
 			case 2: // step completed successfully
-				std::cout << "BROYDEN UPDATE:" << std::endl;
-				if (!broyden_update(alpha)) { // condition number failed, reset to previous jacobian
-					jacobian = previous_jacobian;
-					std::cout << "condition number failed, resetting jacobian to: \n" << jacobian.format(CleanFmt) << std::endl;
-				}
+				broyden_update(alpha);
 				break;
 		}
 		std::cout << "loop duration: " << ros::Time::now() - begin << "\n**************************************" << std::endl;
@@ -262,12 +232,12 @@ void UVSControl::loop()
 	std::string line;
 	std::string s;
 	while (ros::ok() && !exit_loop) {
-		std::cout << "************************************************************************************************"
+		std::cout << "**********************************************************"
 				  << "\nSelect option:"
 				  << "\n\tm: Move one joint"
-				  << "\n\tj: Compute Jacobian (Central Diff)"
+				  << "\n\tj: Initialize Jacobian (Central Diff)"
 				  << "\n\tv: Complete VS convergence with set max iterations"
-				  << "\n\ts: Compute and move one step"\
+				  << "\n\ts: Compute and move one step"
 				  << "\n\ti: Move to initial position"
 				  << "\n\th: Move to home position"
 				  << "\n\tp: Print info"

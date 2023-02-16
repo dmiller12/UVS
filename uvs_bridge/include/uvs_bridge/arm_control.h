@@ -53,7 +53,7 @@ class ArmControl {
         bool call_haptic_sphere();
         bool set_gravity_compensation(); 
         bool set_gravity_compensation(bool gravity); 
-        bool lock_joint_position(); 
+        bool lock_joint_position();
         bool lock_joint_position(bool lock); 
         bool lock_cartesian_position(); 
         bool lock_cartesian_position(bool lock); 

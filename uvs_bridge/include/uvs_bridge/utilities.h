@@ -1,7 +1,3 @@
-/* 
- * lpetrich 01/07/18
- */
-
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
